@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const jwt = require("jsonwebtoken");
-const bcrypt = require("bcrypt");
 const validator = require("validator")
 
 const userSchema = new mongoose.Schema(
@@ -29,6 +28,11 @@ const userSchema = new mongoose.Schema(
     password: {
       type: String,
       required: true,
+       validate(val) {
+        if (!validator.isStrongPassword(val)) {
+          throw new Error("Please enter strong password");
+        }
+      }
     },
     age: {
       type: Number,

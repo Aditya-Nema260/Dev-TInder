@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const userConnectionSchema = new mongoose.Schema(
   {
-    fromUser: {
+    fromUserID: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
-    toUser: {
+    toUserID: {
       type: mongoose.Schema.Types.ObjectId,
       required: true,
     },
@@ -14,7 +14,7 @@ const userConnectionSchema = new mongoose.Schema(
       type: String,
       required: true,
       enum: {
-        values: ["accept","reject","interested","ignored"],
+        values: ["accepted","rejected","interested","ignored"],
       },
     },
 

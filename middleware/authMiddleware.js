@@ -18,6 +18,10 @@ const authMiddleware = async (req, res, next) => {
     console.log("ID", userID);
 
     req.userInfo = await User.findById(userID);
+    req.userId = userID
+    console.log("Auth",req.userId);
+    
+
 
     next();
   } catch (error) {
