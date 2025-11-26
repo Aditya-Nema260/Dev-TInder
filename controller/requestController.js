@@ -1,6 +1,6 @@
 const UserConnection = require("../models/UserConnection");
 const User = require("../models/User");
-const InterestedUser = async (req, res) => {
+const sendStatus = async (req, res) => {
   try {
     const fromUserID = req.userId;
     const toUserID = req.params.toUserID;
@@ -12,13 +12,13 @@ const InterestedUser = async (req, res) => {
     console.log("To", toUserID);
     console.log("status", status);
 
-    const allowedStatus = ["interested", "rejected"];
-    const exist = await User.findById(toUser);
+    const allowedStatus = ["interested", "ignored"];
     if (!allowedStatus.includes(status)) {
       throw new Error("This status is not allowed");
     }
+    const exist = await User.findById(toUser);
     if (!exist) {
-      res.status(404).message("User not found");
+      return res.status(404).json({ message: "User not found" });
     }
     if (fromUserID === toUserID) {
       throw new Error("Can't make this request");
@@ -39,7 +39,10 @@ const InterestedUser = async (req, res) => {
       status,
     });
     res.status(200).json({
-      message: `${fromUser.firstName}, Connection request sent successfully to ${toUser.firstName}`,
+      message:
+        status === "interested"
+          ? `${fromUser.firstName}, Connection request sent successfully to ${toUser.firstName}`
+          : ` ${fromUser.firstName}, ignored ${toUser.firstName}`,
       connectionRequest,
     });
   } catch (error) {
@@ -48,7 +51,46 @@ const InterestedUser = async (req, res) => {
     });
   }
 };
+const responseRequest = async (req, res) => {
+  try {
+    const loggedUser = req.userId;
+    const { status, requestId } = req.params;
+    
+
+    const allowedStatus = ["accepted", "rejected"];
+    if (!allowedStatus.includes(status)) {
+      throw new Error("This status is not allowed");
+    }
+
+    console.log("LOGGED USER ",loggedUser);
+    console.log("REQ ID",requestId);
+    
+    const request = await UserConnection.findOne({
+      _id: requestId,
+      toUserID: loggedUser,
+      status: "interested",
+    });
+    console.log("Request",request);
+    
+    if (!request) {
+      return res.status(404).json({ message: "Connection request not found" });
+    }
+
+    request.status = status
+    const data =  await request.save()
+
+    res.status(200).json({
+      message : `Connection request ${status}`,
+      data
+    })
+  } catch (error) {
+    res.status(400).json({
+      message: error.message,
+    });
+  }
+};
 
 module.exports = {
-  InterestedUser,
+  sendStatus,
+  responseRequest,
 };

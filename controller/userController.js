@@ -1,16 +1,89 @@
+const UserConnection = require("../models/UserConnection");
 
 const showFeed = (req, res) => {
   try {
     const user = req.userInfo;
     res.status(200).json({
       message: `Welcome to ${user.firstName} feed`,
-      user
+      user,
     });
   } catch (error) {
     res.status(404).json({
       message: error.message,
     });
   }
-}
+};
 
-module.exports = {showFeed}
+const showRequestList = async (req, res) => {
+  try {
+    const loggedInUser = req.userId;
+    console.log("USER CONNECCTION", loggedInUser);
+
+    const connectionRequest = await UserConnection.find({
+      toUserID: loggedInUser,
+      status: "interested",
+    }).populate(
+      "fromUserID",
+      "firstName lastName  age gender imageUrl about techStack"
+    );
+
+    res.status(200).json({
+      message: "Requests fetched",
+      connectionRequest,
+    });
+  } catch (error) {
+    res.status(404).json({
+      message: error.message,
+    });
+  }
+};
+
+const showConnection = async (req, res) => {
+  try {
+    const loggedInUser = req.userId;
+    const connectionRequest = await UserConnection.find({
+      $or: [
+        {
+          toUserID: loggedInUser,
+          status: "accepted",
+        },
+        {
+          fromUserID: loggedInUser,
+          status: "accepted",
+        },
+      ],
+    });
+    console.log(connectionRequest);
+
+    let populateConnection;
+    let arrayPopulatated = [];
+
+    for (let connection of connectionRequest) {
+      if (connection.fromUserID == loggedInUser) {
+        populateConnection = await connection.populate(
+          "toUserID",
+          "firstName lastName  age gender imageUrl about techStack"
+        );
+        arrayPopulatated.push(populateConnection);
+      } else {
+        populateConnection = await connection.populate(
+          "fromUserID",
+          "firstName lastName  age gender imageUrl about techStack"
+        );
+        arrayPopulatated.push(populateConnection);
+      }
+    }
+
+    console.log(arrayPopulatated);
+
+    res.status(200).json({
+      message: "your connection",
+      connections: arrayPopulatated,
+    });
+  } catch (error) {
+    res.status(404).json({
+      message: error.message,
+    });
+  }
+};
+module.exports = { showFeed, showRequestList, showConnection };

@@ -20,7 +20,7 @@ app.get("/check", (req, res) => {
 });
 app.use("/profile",profileRoutes)
 app.use("/api/auth", authRoutes);
-app.use("/request/send",requestRoute)
+app.use("/request",requestRoute)
 app.use("/user", userRoutes);
 
 app.listen(port, () => {
