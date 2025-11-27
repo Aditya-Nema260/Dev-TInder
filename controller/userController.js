@@ -1,11 +1,27 @@
 const UserConnection = require("../models/UserConnection");
+const User = require("../models/User");
 
-const showFeed = (req, res) => {
+const showFeed = async (req, res) => {
   try {
-    const user = req.userInfo;
+    const loggedUserId = req.userId;
+    const connectionRequest = await UserConnection.find({
+      $or: [{ fromUserID: loggedUserId }, { toUserID: loggedUserId }],
+    }).select("fromUserID toUserID");
+
+    const notShow = new Set();
+    connectionRequest.forEach((request) => {
+      notShow.add(request.fromUserID.toString());
+      notShow.add(request.toUserID.toString());
+    });
+
+    const users = await User.find({
+      _id: { $nin: [...notShow] },
+    }).select("firstName lastName");
+
+    console.log("UNIQUE ", notShow);
+
     res.status(200).json({
-      message: `Welcome to ${user.firstName} feed`,
-      user,
+      users,
     });
   } catch (error) {
     res.status(404).json({
@@ -23,13 +39,13 @@ const showRequestList = async (req, res) => {
       toUserID: loggedInUser,
       status: "interested",
     }).populate(
-      "fromUserID",
-      "firstName lastName  age gender imageUrl about techStack"
-    );
+        "fromUserID",
+        "firstName lastName  age gender imageUrl about techStack"
+      ).select("fromUserID");
 
     res.status(200).json({
       message: "Requests fetched",
-      connectionRequest,
+      requests: connectionRequest,
     });
   } catch (error) {
     res.status(404).json({
