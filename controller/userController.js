@@ -15,7 +15,10 @@ const showFeed = async (req, res) => {
     });
 
     const users = await User.find({
-      _id: { $nin: [...notShow] },
+      $and: [
+        { _id: { $nin: [...notShow] } },
+        { _id: { $ne: loggedUserId } },
+      ],
     }).select("firstName lastName");
 
     console.log("UNIQUE ", notShow);
@@ -38,10 +41,12 @@ const showRequestList = async (req, res) => {
     const connectionRequest = await UserConnection.find({
       toUserID: loggedInUser,
       status: "interested",
-    }).populate(
+    })
+      .populate(
         "fromUserID",
         "firstName lastName  age gender imageUrl about techStack"
-      ).select("fromUserID");
+      )
+      .select("fromUserID");
 
     res.status(200).json({
       message: "Requests fetched",
