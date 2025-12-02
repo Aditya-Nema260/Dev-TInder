@@ -18,7 +18,7 @@ const registerUser = async (req, res) => {
     });
 
     if (checkExistingUser) {
-      throw new Error("User already exist with same firstName or email");
+      throw new Error("User already exist with same email");
     }
     if (!validator.isStrongPassword(password)) {
       throw new Error("Please enter strong password");
@@ -79,6 +79,7 @@ const loginUser = async (req, res) => {
     res.status(200).json({
       message: "logged in successfull",
       accessToken,
+      user
     });
   } catch (error) {
     res.status(404).json({
