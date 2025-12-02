@@ -1,13 +1,17 @@
 const User = require("../models/User");
 const bcrypt = require("bcryptjs");
 const jwt = require("jsonwebtoken");
-
+const validator = require("validator");
 const registerUser = async (req, res) => {
-  
   console.log("REGISTER");
 
   try {
-    const { email, password } = req.body;
+    const {firstName, email, password } = req.body;
+
+    if(!firstName){
+      throw new Error("FirstName is required");
+      
+    }
 
     const checkExistingUser = await User.findOne({
       email,
@@ -15,6 +19,9 @@ const registerUser = async (req, res) => {
 
     if (checkExistingUser) {
       throw new Error("User already exist with same firstName or email");
+    }
+    if (!validator.isStrongPassword(password)) {
+      throw new Error("Please enter strong password");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -80,12 +87,12 @@ const loginUser = async (req, res) => {
   }
 };
 
-const logoutUser = async (req,res) => {
-  res.cookie("token",null,{
-    expires : new Date(Date.now()),
-  })
-  res.send("User logged out Successfully")
-}
+const logoutUser = async (req, res) => {
+  res.cookie("token", null, {
+    expires: new Date(Date.now()),
+  });
+  res.send("User logged out Successfully");
+};
 module.exports = {
   loginUser,
   registerUser,

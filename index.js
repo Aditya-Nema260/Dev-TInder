@@ -8,10 +8,11 @@ const requestRoute = require("./routes/requestRoutes")
 const app = express();
 const cookieParser = require("cookie-parser");
 const connectDB = require("./database/db");
-
+const cors = require("cors");
 connectDB();
 app.use(express.json());
 app.use(cookieParser());
+app.use(cors());
 
 app.get("/check", (req, res) => {
   res.status(200).json({
