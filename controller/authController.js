@@ -89,9 +89,11 @@ const loginUser = async (req, res) => {
 };
 
 const logoutUser = async (req, res) => {
+  console.log("logout aou");
   res.cookie("token", null, {
     expires: new Date(Date.now()),
   });
+  
   res.send("User logged out Successfully");
 };
 module.exports = {

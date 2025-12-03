@@ -19,7 +19,7 @@ const showFeed = async (req, res) => {
         { _id: { $nin: [...notShow] } },
         { _id: { $ne: loggedUserId } },
       ],
-    }).select("firstName lastName");
+    }).select("firstName lastName about email age techStack gender about imageUrl _id");  
 
     console.log("UNIQUE ", notShow);
 

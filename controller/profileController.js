@@ -26,7 +26,7 @@ const editProfile = async (req, res) => {
     "techStack",
     "gender",
     "about",
-    "imageURL",
+    "imageUrl",
   ];
 
   const isEditEditable = Object.keys(req.body).every((field) => {
