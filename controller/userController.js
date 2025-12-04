@@ -16,10 +16,10 @@ const showFeed = async (req, res) => {
 
     const users = await User.find({
       $and: [
-        { _id: { $nin: [...notShow] } },
+        { _id: { $nin: [...notShow] } }, 
         { _id: { $ne: loggedUserId } },
       ],
-    }).select("firstName lastName about email age techStack gender about imageUrl _id");  
+    }).select("firstName lastName about email age techStack gender about imageUrl _id");
 
     console.log("UNIQUE ", notShow);
 
@@ -44,7 +44,7 @@ const showRequestList = async (req, res) => {
     })
       .populate(
         "fromUserID",
-        "firstName lastName  age gender imageUrl about techStack"
+        "firstName lastName email age gender imageUrl about techStack"
       )
       .select("fromUserID");
 
@@ -79,19 +79,22 @@ const showConnection = async (req, res) => {
     let populateConnection;
     let arrayPopulatated = [];
 
+    // console.log(connectionRequest.toUserID);
     for (let connection of connectionRequest) {
       if (connection.fromUserID == loggedInUser) {
         populateConnection = await connection.populate(
           "toUserID",
-          "firstName lastName  age gender imageUrl about techStack"
+          "firstName lastName email age gender imageUrl about techStack"
         );
-        arrayPopulatated.push(populateConnection);
+        console.log(connection.toUserID);
+
+        arrayPopulatated.push(connection.toUserID);
       } else {
         populateConnection = await connection.populate(
           "fromUserID",
           "firstName lastName  age gender imageUrl about techStack"
         );
-        arrayPopulatated.push(populateConnection);
+        arrayPopulatated.push(connection.fromUserID);
       }
     }
 
